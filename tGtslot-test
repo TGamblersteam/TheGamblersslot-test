@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gambler Network - Slot Makinesi</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/4.0.2/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #222;
+            color: white;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .slot-machine {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .reels {
+            display: flex;
+        }
+
+        .reel {
+            width: 60px;
+            height: 140px;
+            border: 2px solid yellow;
+            margin: 5px;
+            overflow: hidden;
+            position: relative;
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .reward-pool {
+            background-color: yellow;
+            color: black;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #spin {
+            background-color: red;
+            color: white;
+        }
+
+        #connect-wallet {
+            background-color: blue;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>The Gambler Network - Slot Makinesi</h1>
+
+        <div class="slot-machine">
+            <div class="reels">
+                <div class="reel" id="reel1">🍒</div>
+                <div class="reel" id="reel2">🍋</div>
+                <div class="reel" id="reel3">🍉</div>
+                <div class="reel" id="reel4">🍇</div>
+                <div class="reel" id="reel5">🍊</div>
+                <div class="reel" id="reel6">🍎</div>
+                <div class="reel" id="reel7">🍌</div>
+            </div>
+        </div>
+
+        <div class="reward-pool">
+            <p>Ödül Havuzu: <span id="reward">0</span> tGt</p>
+        </div>
+
+        <div class="buttons">
+            <button id="spin">SPIN</button>
+            <button id="connect-wallet">CÜZDAN BAĞLA</button>
+        </div>
+    </div>
+
+    <script>
+        const fruits = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
+
+        function spinReels() {
+            let reels = document.querySelectorAll(".reel");
+            let results = [];
+
+            reels.forEach(reel => {
+                let randomFruit = fruits[Math.floor(Math.random() * fruits.length)];
+                reel.innerText = randomFruit;
+                results.push(randomFruit);
+            });
+
+            checkWin(results);
+        }
+
+        function checkWin(results) {
+            let counts = {};
+            results.forEach(fruit => {
+                counts[fruit] = (counts[fruit] || 0) + 1;
+            });
+
+            let maxCount = Math.max(...Object.values(counts));
+
+            if (maxCount >= 3) {
+                let reward = maxCount * 5;
+                let rewardElement = document.getElementById("reward");
+                rewardElement.innerText = (parseFloat(rewardElement.innerText) + reward).toFixed(2);
+                alert(`Kazandınız! ${maxCount} aynı sembol: +${reward} tGt`);
+            }
+        }
+
+        document.getElementById("spin").addEventListener("click", spinReels);
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    let web3 = new Web3(window.ethereum);
+                    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                    alert("Cüzdan Bağlandı: " + accounts[0]);
+                } catch (error) {
+                    alert("Cüzdan bağlantısı başarısız: " + error.message);
+                }
+            } else {
+                alert("Metamask veya Web3 uyumlu bir cüzdan yükleyin!");
+            }
+        }
+
+        document.getElementById("connect-wallet").addEventListener("click", connectWallet);
+    </script>
+
+</body>
+</html>
