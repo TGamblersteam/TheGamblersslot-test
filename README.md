@@ -1,4 +1,3 @@
-# TheGamblersslot-test
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -78,24 +77,30 @@
 
         function spinReels() {
             let reels = document.querySelectorAll(".reel");
-            let result = [];
+            let reelResults = [];
+
+            // Spin butonunu devre dışı bırak
+            document.getElementById("spin").disabled = true;
 
             // Rastgele semboller seç ve göster
             reels.forEach(reel => {
                 let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
                 reel.innerText = randomSymbol;
-                result.push(randomSymbol);
+                reelResults.push(randomSymbol);
             });
 
             // Kazanç kontrolü
-            checkWin(result);
+            checkWin(reelResults);
+
+            // Spin butonunu tekrar etkinleştir
+            document.getElementById("spin").disabled = false;
         }
 
-        function checkWin(result) {
+        function checkWin(reelResults) {
             let message = document.getElementById("message");
 
-            if (result[0] === result[1] && result[1] === result[2]) {
-                message.innerText = `Tebrikler! ${result[0]} ile kazandınız! 🎉`;
+            if (reelResults[0] === reelResults[1] && reelResults[1] === reelResults[2]) {
+                message.innerText = `Tebrikler! ${reelResults[0]} ile kazandınız! 🎉`;
                 message.style.color = "yellow";
             } else {
                 message.innerText = "Şansını tekrar dene!";
