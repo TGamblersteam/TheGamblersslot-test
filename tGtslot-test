@@ -3,61 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Gambler Network - Slot Makinesi</title>
-    <script src="https://unpkg.com/web3@4.0.2/dist/web3.min.js"></script>
-
+    <title>Basit Slot Oyunu</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #222;
-            color: white;
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background-color: #222; 
+            color: white; 
         }
-
         .container {
-            max-width: 600px;
+            max-width: 400px;
             margin: auto;
             padding: 20px;
         }
-
         .slot-machine {
             display: flex;
             justify-content: center;
             margin: 20px 0;
         }
-
-        .reels {
-            display: flex;
-        }
-
         .reel {
             width: 60px;
-            height: 140px;
+            height: 60px;
             border: 2px solid yellow;
             margin: 5px;
-            overflow: hidden;
-            position: relative;
-            background-color: black;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 30px;
+            background-color: black;
         }
-
-        .reward-pool {
-            background-color: yellow;
-            color: black;
-            padding: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
         .buttons {
             margin-top: 20px;
         }
-
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -66,94 +43,66 @@
             border: none;
             border-radius: 5px;
         }
-
         #spin {
             background-color: red;
             color: white;
         }
-
-        #connect-wallet {
-            background-color: blue;
-            color: white;
+        .message {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>The Gambler Network - Slot Makinesi</h1>
+        <h1>Basit Slot Makinesi</h1>
 
         <div class="slot-machine">
-            <div class="reels">
-                <div class="reel" id="reel1">🍒</div>
-                <div class="reel" id="reel2">🍋</div>
-                <div class="reel" id="reel3">🍉</div>
-                <div class="reel" id="reel4">🍇</div>
-                <div class="reel" id="reel5">🍊</div>
-                <div class="reel" id="reel6">🍎</div>
-                <div class="reel" id="reel7">🍌</div>
-            </div>
-        </div>
-
-        <div class="reward-pool">
-            <p>Ödül Havuzu: <span id="reward">0</span> tGt</p>
+            <div class="reel" id="reel1">🍒</div>
+            <div class="reel" id="reel2">🍋</div>
+            <div class="reel" id="reel3">🍊</div>
         </div>
 
         <div class="buttons">
             <button id="spin">SPIN</button>
-            <button id="connect-wallet">CÜZDAN BAĞLA</button>
         </div>
+
+        <p class="message" id="message">Spin'e bas ve şansını dene!</p>
     </div>
 
     <script>
-        const fruits = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
+        const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
 
         function spinReels() {
             let reels = document.querySelectorAll(".reel");
-            let results = [];
+            let result = [];
 
+            // Rastgele semboller seç ve göster
             reels.forEach(reel => {
-                let randomFruit = fruits[Math.floor(Math.random() * fruits.length)];
-                reel.innerText = randomFruit;
-                results.push(randomFruit);
+                let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                reel.innerText = randomSymbol;
+                result.push(randomSymbol);
             });
 
-            checkWin(results);
+            // Kazanç kontrolü
+            checkWin(result);
         }
 
-        function checkWin(results) {
-            let counts = {};
-            results.forEach(fruit => {
-                counts[fruit] = (counts[fruit] || 0) + 1;
-            });
+        function checkWin(result) {
+            let message = document.getElementById("message");
 
-            let maxCount = Math.max(...Object.values(counts));
-
-            if (maxCount >= 3) {
-                let reward = maxCount * 5;
-                let rewardElement = document.getElementById("reward");
-                rewardElement.innerText = (parseFloat(rewardElement.innerText) + reward).toFixed(2);
-                alert(`Kazandınız! ${maxCount} aynı sembol: +${reward} tGt`);
+            if (result[0] === result[1] && result[1] === result[2]) {
+                message.innerText = `Tebrikler! ${result[0]} ile kazandınız! 🎉`;
+                message.style.color = "yellow";
+            } else {
+                message.innerText = "Şansını tekrar dene!";
+                message.style.color = "white";
             }
         }
 
         document.getElementById("spin").addEventListener("click", spinReels);
-
-        async function connectWallet() {
-            if (window.ethereum) {
-                try {
-                    let web3 = new Web3(window.ethereum);
-                    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-                    alert("Cüzdan Bağlandı: " + accounts[0]);
-                } catch (error) {
-                    alert("Cüzdan bağlantısı başarısız: " + error.message);
-                }
-            } else {
-                alert("Metamask veya Web3 uyumlu bir cüzdan yükleyin!");
-            }
-        }
-
-        document.getElementById("connect-wallet").addEventListener("click", connectWallet);
     </script>
 
 </body>
