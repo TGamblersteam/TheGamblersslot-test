@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Gambler Network - Slot Makinesi</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/4.0.2/web3.min.js"></script>
+    <script src="https://unpkg.com/web3@4.0.2/dist/web3.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
