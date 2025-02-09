@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerçekçi Slot Makinesi</title>
+    <title>TheGamblersslot-test</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,7 +23,7 @@
             border-radius: 20px;
             padding: 20px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            width: 400px;
+            width: 600px;
         }
         .reels {
             display: flex;
@@ -100,6 +100,11 @@
             color: #ffcc00;
             margin-bottom: 10px;
         }
+        #pool {
+            font-size: 20px;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
         #leaderboard {
             margin-top: 20px;
             background: rgba(0, 0, 0, 0.5);
@@ -136,9 +141,10 @@
 <body>
 
     <div class="slot-machine">
-        <h1>Gerçekçi Slot Makinesi</h1>
+        <h1>TheGamblersslot-test</h1>
 
         <p>Puan: <span id="score">100</span></p>
+        <p>Puan Havuzu: <span id="pool">500000</span></p>
 
         <div class="reels">
             <div class="reel" id="reel1">
@@ -150,7 +156,6 @@
                     <div>🍎</div>
                     <div>🍇</div>
                     <div>🍌</div>
-                    <div>🌟</div>
                 </div>
             </div>
             <div class="reel" id="reel2">
@@ -162,7 +167,6 @@
                     <div>🍎</div>
                     <div>🍇</div>
                     <div>🍌</div>
-                    <div>🌟</div>
                 </div>
             </div>
             <div class="reel" id="reel3">
@@ -174,7 +178,28 @@
                     <div>🍎</div>
                     <div>🍇</div>
                     <div>🍌</div>
-                    <div>🌟</div>
+                </div>
+            </div>
+            <div class="reel" id="reel4">
+                <div class="strip">
+                    <div>🍒</div>
+                    <div>🍋</div>
+                    <div>🍊</div>
+                    <div>🍉</div>
+                    <div>🍎</div>
+                    <div>🍇</div>
+                    <div>🍌</div>
+                </div>
+            </div>
+            <div class="reel" id="reel5">
+                <div class="strip">
+                    <div>🍒</div>
+                    <div>🍋</div>
+                    <div>🍊</div>
+                    <div>🍉</div>
+                    <div>🍎</div>
+                    <div>🍇</div>
+                    <div>🍌</div>
                 </div>
             </div>
         </div>
@@ -194,14 +219,21 @@
     </div>
 
     <script>
-        const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌", "🌟"];
+        const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
         let score = 100;
+        let pool = 500000;
         let highScores = JSON.parse(localStorage.getItem("highScores")) || [];
 
         // Puanı güncelle
         function updateScore(points) {
             score += points;
             document.getElementById("score").innerText = score;
+        }
+
+        // Puan havuzunu güncelle
+        function updatePool(points) {
+            pool += points;
+            document.getElementById("pool").innerText = pool;
         }
 
         // Reel'leri döndür
@@ -212,6 +244,7 @@
             }
 
             updateScore(-10); // Her spin için 10 puan harca
+            updatePool(10); // Kaybedilen puanlar havuzda birikir
 
             let reels = document.querySelectorAll(".reel .strip");
             let reelResults = [];
@@ -231,51 +264,37 @@
 
         // Kazanç kontrolü
         function checkWin(reelResults) {
-            let winAmount = 0;
             let message = document.getElementById("message");
 
-            // Wild sembolü kontrolü
-            if (reelResults.includes("🌟")) {
-                let nonWildSymbols = reelResults.filter(symbol => symbol !== "🌟");
-                if (nonWildSymbols.length >= 2 && nonWildSymbols[0] === nonWildSymbols[1]) {
-                    winAmount = getWinAmount(nonWildSymbols[0]);
-                }
-            }
-            // Yatay satır kontrolü
-            else if (reelResults[0] === reelResults[1] && reelResults[1] === reelResults[2]) {
-                winAmount = getWinAmount(reelResults[0]);
+            // Aynı sembollerin sayısını kontrol et
+            let counts = {};
+            reelResults.forEach(symbol => {
+                counts[symbol] = (counts[symbol] || 0) + 1;
+            });
 
-                // Bonus tur tetikleme
-                if (reelResults[0] === "🍉") {
-                    startBonusRound();
-                    return;
-                }
-            }
+            let maxCount = Math.max(...Object.values(counts));
+            let winAmount = 0;
 
-            if (winAmount > 0) {
+            if (maxCount >= 3) {
+                switch (maxCount) {
+                    case 3:
+                        winAmount = 10;
+                        break;
+                    case 4:
+                        winAmount = 100;
+                        break;
+                    case 5:
+                        winAmount = 1000;
+                        break;
+                }
                 updateScore(winAmount);
-                message.innerText = `Tebrikler! ${winAmount} puan kazandınız! 🎉`;
+                updatePool(-winAmount); // Kazanılan puan havuzdan düşülür
+                message.innerText = `Tebrikler! ${maxCount} aynı sembol ile ${winAmount} puan kazandınız! 🎉`;
                 message.style.color = "yellow";
             } else {
                 message.innerText = "Şansını tekrar dene!";
                 message.style.color = "white";
             }
-        }
-
-        // Kazanç miktarını belirle
-        function getWinAmount(symbol) {
-            switch (symbol) {
-                case "🍒": return 50;
-                case "🍋": return 30;
-                case "🍊": return 20;
-                default: return 10;
-            }
-        }
-
-        // Bonus tur
-        function startBonusRound() {
-            alert("Bonus Turu Kazandınız! Ekstra 100 puan kazandınız.");
-            updateScore(100);
         }
 
         // Lider tablosunu güncelle
