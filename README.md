@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Optimize Slot Oyunu</title>
+    <title>TheGamblersslot-test</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -110,7 +110,7 @@
 </head>
 <body>
     <div class="slot-machine">
-        <h1>Slot Oyunu</h1>
+        <h1>TheGamblersslot-test</h1>
         
         <div class="status">
             Puan: <span id="score">100</span><br>
