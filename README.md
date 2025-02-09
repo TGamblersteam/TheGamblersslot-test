@@ -13,6 +13,7 @@
             color: white;
             touch-action: manipulation;
             overflow-x: hidden;
+            text-align: center;
         }
 
         .slot-machine {
@@ -25,14 +26,15 @@
         }
 
         .reels {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            display: flex;
+            justify-content: center;
             gap: 5px;
             margin: 20px 0;
         }
 
         .reel {
-            height: 100px;
+            width: 80px;
+            height: 120px;
             overflow: hidden;
             position: relative;
             background: #000;
@@ -43,20 +45,18 @@
         .strip {
             position: absolute;
             width: 100%;
-            transition: transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: transform 2s ease-out;
         }
 
         .symbol {
-            height: 100px;
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 30px;
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
         .controls {
-            text-align: center;
             margin: 20px 0;
         }
 
@@ -77,11 +77,8 @@
         }
 
         .status {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
             font-size: 20px;
+            margin-top: 10px;
         }
 
         .firework {
@@ -100,41 +97,41 @@
         }
 
         .win-animation {
-            animation: win-blink 0.5s infinite;
+            animation: win-blink 0.5s infinite alternate;
         }
 
         @keyframes win-blink {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.2); }
         }
-
-        @media (max-width: 768px) {
-            .reel { height: 70px; }
-            .symbol { height: 70px; font-size: 24px; }
-        }
     </style>
 </head>
 <body>
     <div class="slot-machine">
         <div class="status">
-            <div>Puan: <span id="score">100</span></div>
-            <div>Havuz: <span id="pool">500000</span></div>
+            <span>Puan: <span id="score">100</span></span> | <span>Havuz: <span id="pool">500000</span></span>
         </div>
 
         <div class="reels">
             <div class="reel"><div class="strip"></div></div>
-            <!-- 6 more reels -->
+            <div class="reel"><div class="strip"></div></div>
+            <div class="reel"><div class="strip"></div></div>
+            <div class="reel"><div class="strip"></div></div>
+            <div class="reel"><div class="strip"></div></div>
+            <div class="reel"><div class="strip"></div></div>
+            <div class="reel"><div class="strip"></div></div>
         </div>
 
         <div class="controls">
             <button id="spin">SPİN (10 Puan)</button>
         </div>
+
         <div id="message" class="status"></div>
     </div>
 
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-        const SYMBOL_HEIGHT = 100;
+        const SYMBOL_HEIGHT = 120;
         let score = 100;
         let pool = 500000;
         let isSpinning = false;
@@ -147,17 +144,13 @@
             reels: document.querySelectorAll('.reel .strip')
         };
 
-        // Optimize edilmiş strip oluşturma
         function initializeStrips() {
             elements.reels.forEach(strip => {
-                const fragment = document.createDocumentFragment();
+                let symbolsHTML = "";
                 for(let i = 0; i < 21; i++) {
-                    const div = document.createElement('div');
-                    div.className = 'symbol';
-                    div.textContent = symbols[i % 7];
-                    fragment.appendChild(div);
+                    symbolsHTML += `<div class="symbol">${symbols[i % symbols.length]}</div>`;
                 }
-                strip.appendChild(fragment);
+                strip.innerHTML = symbolsHTML;
             });
         }
 
@@ -174,8 +167,8 @@
         function createFirework(x, y) {
             const firework = document.createElement('div');
             firework.className = 'firework';
-            firework.style.left = x + 'px';
-            firework.style.top = y + 'px';
+            firework.style.left = `${x}px`;
+            firework.style.top = `${y}px`;
             document.body.appendChild(firework);
             setTimeout(() => firework.remove(), 1500);
         }
@@ -193,28 +186,21 @@
 
         function spinReels() {
             if(isSpinning || score < 10) return;
-            
+
             isSpinning = true;
             elements.spinBtn.disabled = true;
             updateScore(-10);
             updatePool(10);
 
             const results = [];
-            const startTime = Date.now();
-
             elements.reels.forEach((strip, index) => {
-                const targetIndex = Math.floor(Math.random() * 7);
-                const targetY = -(targetIndex * SYMBOL_HEIGHT + 3 * 7 * SYMBOL_HEIGHT);
+                const randomIndex = Math.floor(Math.random() * symbols.length);
+                const targetY = -(randomIndex * SYMBOL_HEIGHT);
                 
-                strip.style.transition = 'none';
-                strip.style.transform = `translateY(${-14 * SYMBOL_HEIGHT}px)`;
-                
-                requestAnimationFrame(() => {
-                    strip.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-                    strip.style.transform = `translateY(${targetY}px)`;
-                });
+                strip.style.transition = `transform ${1.5 + index * 0.2}s ease-out`;
+                strip.style.transform = `translateY(${targetY}px)`;
 
-                results.push(symbols[targetIndex]);
+                results.push(symbols[randomIndex]);
             });
 
             setTimeout(() => {
@@ -224,25 +210,15 @@
             }, 2500);
         }
 
-        function checkConsecutive(results) {
-            let maxCount = 1;
-            let current = 1;
-            
-            for(let i = 1; i < results.length; i++) {
-                results[i] === results[i-1] ? current++ : current = 1;
-                maxCount = Math.max(maxCount, current);
-            }
-            return maxCount;
-        }
-
         function checkWin(results) {
-            const count = checkConsecutive(results);
-            const winAmount = {3:10, 4:50, 5:100, 6:1000, 7:5000}[count] || 0;
+            const count = results.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
+            const maxCount = Math.max(...Object.values(count));
+            const winAmount = {3: 10, 4: 50, 5: 100, 6: 1000, 7: 5000}[maxCount] || 0;
 
             if(winAmount > 0) {
                 updateScore(winAmount);
                 updatePool(-winAmount);
-                elements.message.innerHTML = `🎉 ${count} ARDIŞIK KAZANÇ! +${winAmount} Puan 🎉`;
+                elements.message.innerHTML = `🎉 ${maxCount} aynı sembol ile kazandınız! +${winAmount} Puan 🎉`;
                 showWinAnimation();
                 elements.message.classList.add('win-animation');
             } else {
@@ -251,10 +227,7 @@
             }
         }
 
-        // Event Listeners
         elements.spinBtn.addEventListener('click', spinReels);
-        
-        // Başlangıç
         initializeStrips();
     </script>
 </body>
