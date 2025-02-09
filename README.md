@@ -8,34 +8,40 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #222;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
             margin: 0;
             padding: 0;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-        }
-        h1 {
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .slot-machine {
+            background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+            border: 10px solid #ffcc00;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 400px;
+        }
+        .reels {
             display: flex;
             justify-content: center;
             margin: 20px 0;
         }
         .reel {
-            width: 60px;
-            height: 60px;
-            border: 2px solid yellow;
+            width: 80px;
+            height: 120px;
+            border: 2px solid #ffcc00;
             margin: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
-            background-color: black;
+            font-size: 40px;
+            background-color: #000;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(255, 204, 0, 0.5);
             animation: spin 0.5s linear infinite;
             animation-play-state: paused;
         }
@@ -53,59 +59,79 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
-        }
-        #spin {
-            background-color: red;
+            background-color: #ff4444;
             color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.95);
         }
         #autoSpin {
-            background-color: green;
-            color: white;
+            background-color: #00cc66;
+        }
+        #autoSpin:hover {
+            background-color: #00994d;
         }
         #shareButton {
             background-color: #1da1f2;
-            color: white;
+        }
+        #shareButton:hover {
+            background-color: #0d8bf0;
         }
         .message {
             margin-top: 15px;
             font-size: 18px;
             font-weight: bold;
+            color: #ffcc00;
         }
         #score {
             font-size: 20px;
-            color: yellow;
+            color: #ffcc00;
+            margin-bottom: 10px;
         }
         #leaderboard {
             margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
         }
         #highScores {
             list-style-type: none;
             padding: 0;
         }
+        #highScores li {
+            margin: 5px 0;
+            font-size: 16px;
+        }
         @media (max-width: 600px) {
+            .slot-machine {
+                width: 90%;
+            }
             .reel {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
+                width: 60px;
+                height: 90px;
+                font-size: 30px;
             }
             button {
                 padding: 8px 16px;
                 font-size: 14px;
-            }
-            h1 {
-                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="slot-machine">
         <h1>TheGamblersslot-test</h1>
 
         <p>Puan: <span id="score">100</span></p>
 
-        <div class="slot-machine">
+        <div class="reels">
             <div class="reel" id="reel1">🍒</div>
             <div class="reel" id="reel2">🍋</div>
             <div class="reel" id="reel3">🍊</div>
@@ -117,28 +143,12 @@
             <button id="shareButton">Sonucu Paylaş</button>
         </div>
 
-        <select id="difficulty">
-            <option value="easy">Kolay</option>
-            <option value="medium">Orta</option>
-            <option value="hard">Zor</option>
-        </select>
-
-        <select id="theme">
-            <option value="dark">Karanlık Tema</option>
-            <option value="retro">Retro Tema</option>
-        </select>
-
         <p class="message" id="message">Spin'e bas ve şansını dene!</p>
 
         <div id="leaderboard">
             <h2>Lider Tablosu</h2>
             <ol id="highScores"></ol>
         </div>
-
-        <!-- Ses Efektleri -->
-        <audio id="backgroundMusic" src="background-music.mp3" loop></audio>
-        <audio id="winSound" src="win-sound.mp3"></audio>
-        <audio id="spinSound" src="spin-sound.mp3"></audio>
     </div>
 
     <script>
@@ -152,25 +162,6 @@
             document.getElementById("score").innerText = score;
         }
 
-        // Ses çal
-        function playSound(soundId) {
-            let sound = document.getElementById(soundId);
-            sound.currentTime = 0; // Sesi başa sar
-            sound.play();
-        }
-
-        // Zorluk seviyesine göre sembolleri belirle
-        function getSymbolsByDifficulty() {
-            let difficulty = document.getElementById("difficulty").value;
-            if (difficulty === "easy") {
-                return ["🍒", "🍋", "🍊", "🍒", "🍋", "🍊", "🍒"];
-            } else if (difficulty === "hard") {
-                return ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-            } else {
-                return symbols;
-            }
-        }
-
         // Spin işlemi
         function spinReels() {
             if (score < 10) {
@@ -179,9 +170,7 @@
             }
 
             updateScore(-10); // Her spin için 10 puan harca
-            playSound("spinSound");
 
-            let currentSymbols = getSymbolsByDifficulty();
             let reels = document.querySelectorAll(".reel");
             let reelResults = [];
 
@@ -190,7 +179,7 @@
 
             setTimeout(() => {
                 reels.forEach((reel, index) => {
-                    let randomSymbol = currentSymbols[Math.floor(Math.random() * currentSymbols.length)];
+                    let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
                     reel.innerText = randomSymbol;
                     reelResults.push(randomSymbol);
                     reel.style.animationPlayState = "paused"; // Animasyonu durdur
@@ -225,7 +214,6 @@
 
             if (winAmount > 0) {
                 updateScore(winAmount);
-                playSound("winSound");
                 message.innerText = `Tebrikler! ${winAmount} puan kazandınız! 🎉`;
                 message.style.color = "yellow";
             } else {
@@ -275,20 +263,6 @@
             alert("Oyun bitti! Puanınız lider tablosuna eklendi.");
         }
 
-        // Temayı değiştir
-        document.getElementById("theme").addEventListener("change", function () {
-            let theme = this.value;
-            document.body.className = theme;
-
-            if (theme === "retro") {
-                document.body.style.backgroundColor = "#f0e68c";
-                document.body.style.color = "#000";
-            } else {
-                document.body.style.backgroundColor = "#222";
-                document.body.style.color = "#fff";
-            }
-        });
-
         // Sosyal medya paylaşımı
         document.getElementById("shareButton").addEventListener("click", function () {
             let shareText = `Slot oyununda ${score} puan kazandım! 🎉`;
@@ -311,14 +285,6 @@
                 }
             }, 1500); // Her 1.5 saniyede bir spin
         });
-
-        // Arka plan müziği
-        function playBackgroundMusic() {
-            let music = document.getElementById("backgroundMusic");
-            music.play();
-        }
-
-        playBackgroundMusic(); // Oyun başladığında müziği çal
     </script>
 
 </body>
