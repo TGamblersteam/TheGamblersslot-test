@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TheGamblersslot-test</title>
+    <title>Gerçekçi Slot Makinesi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,19 +35,25 @@
             height: 120px;
             border: 2px solid #ffcc00;
             margin: 5px;
+            overflow: hidden;
+            position: relative;
+            background-color: #000;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        .reel .strip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            transition: top 0.5s ease-out;
+        }
+        .reel .strip div {
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 40px;
-            background-color: #000;
-            border-radius: 10px;
-            box-shadow: inset 0 0 10px rgba(255, 204, 0, 0.5);
-            animation: spin 0.5s linear infinite;
-            animation-play-state: paused;
-        }
-        @keyframes spin {
-            0% { transform: rotateX(0deg); }
-            100% { transform: rotateX(360deg); }
         }
         .buttons {
             margin-top: 20px;
@@ -115,6 +121,9 @@
             .reel {
                 width: 60px;
                 height: 90px;
+            }
+            .reel .strip div {
+                height: 90px;
                 font-size: 30px;
             }
             button {
@@ -127,14 +136,47 @@
 <body>
 
     <div class="slot-machine">
-        <h1>TheGamblersslot-test</h1>
+        <h1>Gerçekçi Slot Makinesi</h1>
 
         <p>Puan: <span id="score">100</span></p>
 
         <div class="reels">
-            <div class="reel" id="reel1">🍒</div>
-            <div class="reel" id="reel2">🍋</div>
-            <div class="reel" id="reel3">🍊</div>
+            <div class="reel" id="reel1">
+                <div class="strip">
+                    <div>🍒</div>
+                    <div>🍋</div>
+                    <div>🍊</div>
+                    <div>🍉</div>
+                    <div>🍎</div>
+                    <div>🍇</div>
+                    <div>🍌</div>
+                    <div>🌟</div>
+                </div>
+            </div>
+            <div class="reel" id="reel2">
+                <div class="strip">
+                    <div>🍒</div>
+                    <div>🍋</div>
+                    <div>🍊</div>
+                    <div>🍉</div>
+                    <div>🍎</div>
+                    <div>🍇</div>
+                    <div>🍌</div>
+                    <div>🌟</div>
+                </div>
+            </div>
+            <div class="reel" id="reel3">
+                <div class="strip">
+                    <div>🍒</div>
+                    <div>🍋</div>
+                    <div>🍊</div>
+                    <div>🍉</div>
+                    <div>🍎</div>
+                    <div>🍇</div>
+                    <div>🍌</div>
+                    <div>🌟</div>
+                </div>
+            </div>
         </div>
 
         <div class="buttons">
@@ -152,7 +194,7 @@
     </div>
 
     <script>
-        const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌", "🌟"]; // Wild sembolü eklendi
+        const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌", "🌟"];
         let score = 100;
         let highScores = JSON.parse(localStorage.getItem("highScores")) || [];
 
@@ -162,7 +204,7 @@
             document.getElementById("score").innerText = score;
         }
 
-        // Spin işlemi
+        // Reel'leri döndür
         function spinReels() {
             if (score < 10) {
                 alert("Yeterli puanınız yok!");
@@ -171,22 +213,20 @@
 
             updateScore(-10); // Her spin için 10 puan harca
 
-            let reels = document.querySelectorAll(".reel");
+            let reels = document.querySelectorAll(".reel .strip");
             let reelResults = [];
 
-            // Animasyonu başlat
-            reels.forEach(reel => reel.style.animationPlayState = "running");
+            reels.forEach((strip, index) => {
+                let randomPosition = Math.floor(Math.random() * symbols.length) * -120; // Rastgele pozisyon
+                strip.style.top = `${randomPosition}px`;
 
-            setTimeout(() => {
-                reels.forEach((reel, index) => {
-                    let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-                    reel.innerText = randomSymbol;
-                    reelResults.push(randomSymbol);
-                    reel.style.animationPlayState = "paused"; // Animasyonu durdur
-                });
+                // Durdurulan sembolü belirle
+                let visibleIndex = Math.abs(randomPosition / 120) % symbols.length;
+                reelResults.push(symbols[visibleIndex]);
+            });
 
-                checkWin(reelResults);
-            }, 1000); // 1 saniye sonra sonuçları göster
+            // Kazanç kontrolü
+            setTimeout(() => checkWin(reelResults), 1000); // Animasyon bittikten sonra kontrol et
         }
 
         // Kazanç kontrolü
