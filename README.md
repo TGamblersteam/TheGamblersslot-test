@@ -7,124 +7,134 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
             margin: 0;
             padding: 20px;
+            background: #1a1a1a;
+            color: white;
             touch-action: manipulation;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            overflow-x: hidden;
         }
 
         .slot-machine {
-            background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
-            border: 5px solid #ffcc00;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
             max-width: 800px;
-            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         .reels {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
             gap: 5px;
-            margin: 15px 0;
-            flex-wrap: wrap;
+            margin: 20px 0;
         }
 
         .reel {
-            width: 80px;
-            height: 120px;
+            height: 100px;
             overflow: hidden;
+            position: relative;
             background: #000;
             border-radius: 5px;
-            border: 2px solid #ffcc00;
-            position: relative;
+            border: 2px solid #444;
         }
 
         .strip {
             position: absolute;
             width: 100%;
-            transition: transform 2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
-        .strip div {
-            height: 120px;
+        .symbol {
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 30px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
-        .buttons {
-            margin: 15px 0;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
+        .controls {
+            text-align: center;
+            margin: 20px 0;
         }
 
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-width: 100px;
-            background: #ff4444;
+            padding: 12px 30px;
+            font-size: 18px;
+            background: #e74c3c;
             color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
         }
 
         .status {
-            margin: 10px 0;
-            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            font-size: 20px;
         }
 
-        .winning {
-            animation: blink 0.5s infinite alternate;
+        .firework {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff0;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 1.5s ease-out;
         }
 
-        @keyframes blink {
-            from { color: #ffcc00; }
-            to { color: #ffffff; }
+        @keyframes explode {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(20); opacity: 0; }
+        }
+
+        .win-animation {
+            animation: win-blink 0.5s infinite;
+        }
+
+        @keyframes win-blink {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @media (max-width: 768px) {
+            .reel { height: 70px; }
+            .symbol { height: 70px; font-size: 24px; }
         }
     </style>
 </head>
 <body>
     <div class="slot-machine">
-        <h1>7 Makaralı Slot Oyunu</h1>
-        
         <div class="status">
-            Puan: <span id="score">100</span> | Havuz: <span id="pool">500000</span>
+            <div>Puan: <span id="score">100</span></div>
+            <div>Havuz: <span id="pool">500000</span></div>
         </div>
 
         <div class="reels">
-            <!-- 7 Makara -->
             <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
+            <!-- 6 more reels -->
         </div>
 
-        <div class="buttons">
-            <button id="spin">SPIN</button>
+        <div class="controls">
+            <button id="spin">SPİN (10 Puan)</button>
         </div>
-
         <div id="message" class="status"></div>
     </div>
 
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-        const SYMBOL_HEIGHT = 120;
+        const SYMBOL_HEIGHT = 100;
         let score = 100;
         let pool = 500000;
         let isSpinning = false;
@@ -133,17 +143,21 @@
             score: document.getElementById('score'),
             pool: document.getElementById('pool'),
             message: document.getElementById('message'),
+            spinBtn: document.getElementById('spin'),
             reels: document.querySelectorAll('.reel .strip')
         };
 
-        // Makaraları başlat
+        // Optimize edilmiş strip oluşturma
         function initializeStrips() {
             elements.reels.forEach(strip => {
-                let html = '';
-                for(let i = 0; i < 21; i++) { // 3 tam döngü
-                    html += `<div>${symbols[i % symbols.length]}</div>`;
+                const fragment = document.createDocumentFragment();
+                for(let i = 0; i < 21; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'symbol';
+                    div.textContent = symbols[i % 7];
+                    fragment.appendChild(div);
                 }
-                strip.innerHTML = html;
+                strip.appendChild(fragment);
             });
         }
 
@@ -157,22 +171,48 @@
             elements.pool.textContent = pool;
         }
 
+        function createFirework(x, y) {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.left = x + 'px';
+            firework.style.top = y + 'px';
+            document.body.appendChild(firework);
+            setTimeout(() => firework.remove(), 1500);
+        }
+
+        function showWinAnimation() {
+            for(let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createFirework(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight
+                    );
+                }, i * 50);
+            }
+        }
+
         function spinReels() {
-            if (isSpinning || score < 10) return;
-            isSpinning = true;
+            if(isSpinning || score < 10) return;
             
+            isSpinning = true;
+            elements.spinBtn.disabled = true;
             updateScore(-10);
             updatePool(10);
 
-            let results = [];
-            const animationTime = 2000;
+            const results = [];
+            const startTime = Date.now();
 
             elements.reels.forEach((strip, index) => {
-                const targetIndex = Math.floor(Math.random() * symbols.length);
-                const randomPos = -(targetIndex * SYMBOL_HEIGHT + 3 * SYMBOL_HEIGHT * symbols.length);
+                const targetIndex = Math.floor(Math.random() * 7);
+                const targetY = -(targetIndex * SYMBOL_HEIGHT + 3 * 7 * SYMBOL_HEIGHT);
                 
-                strip.style.transition = `transform ${animationTime}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
-                strip.style.transform = `translateY(${randomPos}px)`;
+                strip.style.transition = 'none';
+                strip.style.transform = `translateY(${-14 * SYMBOL_HEIGHT}px)`;
+                
+                requestAnimationFrame(() => {
+                    strip.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                    strip.style.transform = `translateY(${targetY}px)`;
+                });
 
                 results.push(symbols[targetIndex]);
             });
@@ -180,44 +220,41 @@
             setTimeout(() => {
                 checkWin(results);
                 isSpinning = false;
-            }, animationTime);
+                elements.spinBtn.disabled = false;
+            }, 2500);
         }
 
         function checkConsecutive(results) {
-            let maxConsecutive = 1;
+            let maxCount = 1;
             let current = 1;
             
             for(let i = 1; i < results.length; i++) {
-                if(results[i] === results[i-1]) {
-                    current++;
-                    maxConsecutive = Math.max(maxConsecutive, current);
-                } else {
-                    current = 1;
-                }
+                results[i] === results[i-1] ? current++ : current = 1;
+                maxCount = Math.max(maxCount, current);
             }
-            return maxConsecutive;
+            return maxCount;
         }
 
         function checkWin(results) {
-            const consecutiveCount = checkConsecutive(results);
-            const winAmounts = {3:10, 4:50, 5:100, 6:1000, 7:5000};
-            const winAmount = winAmounts[consecutiveCount] || 0;
+            const count = checkConsecutive(results);
+            const winAmount = {3:10, 4:50, 5:100, 6:1000, 7:5000}[count] || 0;
 
             if(winAmount > 0) {
                 updateScore(winAmount);
                 updatePool(-winAmount);
-                elements.message.textContent = `🎉 ${consecutiveCount} ARDIŞIK KAZANÇ! +${winAmount} Puan 🎉`;
-                elements.message.classList.add("winning");
+                elements.message.innerHTML = `🎉 ${count} ARDIŞIK KAZANÇ! +${winAmount} Puan 🎉`;
+                showWinAnimation();
+                elements.message.classList.add('win-animation');
             } else {
                 elements.message.textContent = "Tekrar deneyin...";
-                elements.message.classList.remove("winning");
+                elements.message.classList.remove('win-animation');
             }
         }
 
-        // Event listener'lar
-        document.getElementById('spin').addEventListener('click', spinReels);
+        // Event Listeners
+        elements.spinBtn.addEventListener('click', spinReels);
         
-        // Oyunu başlat
+        // Başlangıç
         initializeStrips();
     </script>
 </body>
