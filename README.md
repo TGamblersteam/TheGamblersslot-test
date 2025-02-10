@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classic Slot Machine</title>
+    <title>Realistic Slot Machine</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,6 +33,7 @@
             display: flex;
             justify-content: center;
             gap: 10px;
+            position: relative;
         }
 
         .reel {
@@ -48,7 +49,6 @@
         .strip {
             position: absolute;
             width: 100%;
-            transition: transform 1s ease-out;
         }
 
         .symbol {
@@ -120,7 +120,7 @@
 <body>
 
     <div class="slot-machine">
-        <h1>Classic Slot Machine</h1>
+        <h1>Realistic Slot Machine</h1>
 
         <div class="status">
             <p>Points: <span id="playerPoints">1000</span></p>
@@ -165,21 +165,12 @@
         function initializeStrips() {
             elements.reels.forEach(strip => {
                 let html = "";
-                for (let i = 0; i < 9; i++) {
+                for (let i = 0; i < 30; i++) {
                     html += `<div class="symbol">${symbols[i % symbols.length]}</div>`;
                 }
                 strip.innerHTML = html;
+                strip.style.top = `-${Math.floor(Math.random() * 20) * 100}px`;
             });
-        }
-
-        function updatePoints(amount) {
-            playerPoints = Math.max(0, playerPoints + amount);
-            elements.playerPoints.textContent = playerPoints;
-        }
-
-        function updateRewardPool(amount) {
-            rewardPool = Math.max(0, rewardPool + amount);
-            elements.rewardPool.textContent = rewardPool;
         }
 
         function spinReels() {
@@ -193,44 +184,66 @@
 
             isSpinning = true;
             elements.spinBtn.disabled = true;
-            updatePoints(-bet);
-            updateRewardPool(bet);
+            playerPoints -= bet;
+            rewardPool += bet;
+            updateUI();
 
-            let results = [];
             elements.reels.forEach((strip, index) => {
                 setTimeout(() => {
-                    const randomIndex = Math.floor(Math.random() * symbols.length);
-                    const targetY = -(randomIndex * 100);
-                    
-                    strip.style.transition = `transform 1s ease-out`;
-                    strip.style.transform = `translateY(${targetY}px)`;
-
-                    results.push(symbols[randomIndex]);
-                    
-                    if (index === elements.reels.length - 1) {
-                        setTimeout(() => {
-                            calculateWin(results, bet);
+                    spinAnimation(strip, () => {
+                        if (index === elements.reels.length - 1) {
+                            checkWin();
                             isSpinning = false;
                             elements.spinBtn.disabled = false;
-                        }, 1000);
-                    }
+                        }
+                    });
                 }, index * 600);
             });
         }
 
-        function calculateWin(results, bet) {
-            const counts = results.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
-            const maxCount = Math.max(...Object.values(counts));
-            const winPercentage = maxCount === 3 ? 0.0001 * bet : maxCount === 4 ? 0.01 * bet : maxCount === 5 ? 1 * bet : 0;
-            const winAmount = Math.floor((rewardPool * winPercentage) / 100);
+        function spinAnimation(strip, callback) {
+            let position = Math.floor(Math.random() * 20) * 100;
+            strip.style.transition = "none";
+            strip.style.top = "-2000px";
+
+            setTimeout(() => {
+                strip.style.transition = "top 1s ease-out";
+                strip.style.top = `-${position}px`;
+                setTimeout(callback, 1000);
+            }, 50);
+        }
+
+        function checkWin() {
+            let results = Array.from(elements.reels).map(strip => strip.innerHTML.match(/>(.*?)<\/div>/g)[0].replace(/[<>\/div]/g, ""));
+            let count = results.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
+            let maxCount = Math.max(...Object.values(count));
+            let winPercentage = maxCount === 3 ? 0.0001 : maxCount === 4 ? 0.01 : maxCount === 5 ? 1 : 0;
+            let winAmount = Math.floor(rewardPool * winPercentage);
 
             if (winAmount > 0) {
-                updatePoints(winAmount);
-                updateRewardPool(-winAmount);
+                playerPoints += winAmount;
+                rewardPool -= winAmount;
                 elements.message.textContent = `🎉 You won ${winAmount} points! 🎉`;
+                showEffect("firework");
             } else {
                 elements.message.textContent = "💥 BOOM! You lost!";
+                showEffect("explosion");
             }
+            updateUI();
+        }
+
+        function updateUI() {
+            elements.playerPoints.textContent = playerPoints;
+            elements.rewardPool.textContent = rewardPool;
+        }
+
+        function showEffect(type) {
+            let effect = document.createElement("div");
+            effect.className = type;
+            effect.style.left = `${Math.random() * window.innerWidth}px`;
+            effect.style.top = `${Math.random() * window.innerHeight}px`;
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 1500);
         }
 
         elements.spinBtn.addEventListener("click", spinReels);
