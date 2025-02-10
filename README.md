@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5 Reel Slot Game</title>
+    <title>Classic Slot Machine</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,10 +12,11 @@
             color: white;
             margin: 0;
             padding: 20px;
+            overflow: hidden;
         }
 
         .slot-machine {
-            max-width: 800px;
+            max-width: 600px;
             margin: auto;
             padding: 20px;
             background: #222;
@@ -36,7 +37,7 @@
 
         .reel {
             width: 80px;
-            height: 150px;
+            height: 100px;
             overflow: hidden;
             background: black;
             border: 3px solid yellow;
@@ -51,11 +52,11 @@
         }
 
         .symbol {
-            height: 50px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 40px;
         }
 
         .controls {
@@ -87,29 +88,48 @@
             border: none;
         }
 
-        .win {
-            animation: blink 0.5s infinite alternate;
+        @keyframes fireworks {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(20); opacity: 0; }
         }
 
-        @keyframes blink {
-            0%, 100% { color: yellow; }
-            50% { color: white; }
+        .firework {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: yellow;
+            border-radius: 50%;
+            animation: fireworks 1.5s ease-out;
+        }
+
+        @keyframes explosion {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(10); opacity: 0; }
+        }
+
+        .explosion {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: red;
+            border-radius: 50%;
+            animation: explosion 1s ease-out;
         }
     </style>
 </head>
 <body>
 
     <div class="slot-machine">
-        <h1>5 Reel Slot Machine</h1>
-        
+        <h1>Classic Slot Machine</h1>
+
         <div class="status">
             <p>Points: <span id="playerPoints">1000</span></p>
             <p>Reward Pool: <span id="rewardPool">10000000</span></p>
         </div>
 
         <div>
-            <label for="betAmount">Bet (1-500): </label>
-            <input type="number" id="betAmount" min="1" max="500" value="1">
+            <label for="betAmount">Bet (1-50x): </label>
+            <input type="number" id="betAmount" min="1" max="50" value="1">
         </div>
 
         <div class="reels">
@@ -129,7 +149,6 @@
 
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-        const SYMBOL_HEIGHT = 50;
         let playerPoints = 1000;
         let rewardPool = 10000000;
         let isSpinning = false;
@@ -167,7 +186,7 @@
             if (isSpinning) return;
 
             let bet = parseInt(elements.betAmount.value);
-            if (isNaN(bet) || bet < 1 || bet > 500 || bet > playerPoints) {
+            if (isNaN(bet) || bet < 1 || bet > 50 || bet > playerPoints) {
                 elements.message.textContent = "Invalid bet!";
                 return;
             }
@@ -179,44 +198,38 @@
 
             let results = [];
             elements.reels.forEach((strip, index) => {
-                const randomIndex = Math.floor(Math.random() * symbols.length);
-                const targetY = -(randomIndex * SYMBOL_HEIGHT);
-                
-                strip.style.transition = `transform ${1.5 + index * 0.1}s ease-out`;
-                strip.style.transform = `translateY(${targetY}px)`;
+                setTimeout(() => {
+                    const randomIndex = Math.floor(Math.random() * symbols.length);
+                    const targetY = -(randomIndex * 100);
+                    
+                    strip.style.transition = `transform 1s ease-out`;
+                    strip.style.transform = `translateY(${targetY}px)`;
 
-                results.push(symbols[randomIndex]);
+                    results.push(symbols[randomIndex]);
+                    
+                    if (index === elements.reels.length - 1) {
+                        setTimeout(() => {
+                            calculateWin(results, bet);
+                            isSpinning = false;
+                            elements.spinBtn.disabled = false;
+                        }, 1000);
+                    }
+                }, index * 600);
             });
-
-            setTimeout(() => {
-                calculateWin(results, bet);
-                isSpinning = false;
-                elements.spinBtn.disabled = false;
-            }, 2000);
         }
 
         function calculateWin(results, bet) {
-            const counts = results.reduce((acc, val) => {
-                acc[val] = (acc[val] || 0) + 1;
-                return acc;
-            }, {});
+            const counts = results.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
+            const maxCount = Math.max(...Object.values(counts));
+            const winPercentage = maxCount === 3 ? 0.0001 * bet : maxCount === 4 ? 0.01 * bet : maxCount === 5 ? 1 * bet : 0;
+            const winAmount = Math.floor((rewardPool * winPercentage) / 100);
 
-            let maxCount = Math.max(...Object.values(counts));
-            let winPercentage = 0;
-
-            if (maxCount === 3) winPercentage = 0.0001 * bet;
-            else if (maxCount === 4) winPercentage = 0.01 * bet;
-            else if (maxCount === 5) winPercentage = 1 * bet;
-
-            let winAmount = Math.floor((rewardPool * winPercentage) / 100);
             if (winAmount > 0) {
                 updatePoints(winAmount);
                 updateRewardPool(-winAmount);
-                elements.message.innerHTML = `🎉 You won ${winAmount} points! 🎉`;
-                elements.message.classList.add("win");
+                elements.message.textContent = `🎉 You won ${winAmount} points! 🎉`;
             } else {
-                elements.message.textContent = "Try again!";
-                elements.message.classList.remove("win");
+                elements.message.textContent = "💥 BOOM! You lost!";
             }
         }
 
