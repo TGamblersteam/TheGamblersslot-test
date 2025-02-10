@@ -32,7 +32,6 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            position: relative;
         }
 
         .reel {
@@ -85,34 +84,6 @@
             text-align: center;
             border-radius: 10px;
             border: none;
-        }
-
-        @keyframes fireworks {
-            0% { transform: scale(0); opacity: 1; }
-            100% { transform: scale(20); opacity: 0; }
-        }
-
-        .firework {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: yellow;
-            border-radius: 50%;
-            animation: fireworks 1.5s ease-out;
-        }
-
-        @keyframes explosion {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(10); opacity: 0; }
-        }
-
-        .explosion {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            background: red;
-            border-radius: 50%;
-            animation: explosion 1s ease-out;
         }
     </style>
 </head>
@@ -216,17 +187,20 @@
             let results = Array.from(elements.reels).map(strip => strip.children[3].textContent);
             let count = results.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
             let maxCount = Math.max(...Object.values(count));
-            let winPercentage = maxCount === 3 ? 0.0001 * bet : maxCount === 4 ? 0.01 * bet : maxCount === 5 ? 1 * bet : 0;
-            let winAmount = Math.floor(rewardPool * winPercentage);
 
-            if (winAmount > 0) {
+            let winPercentage = 0;
+            if (maxCount === 3) winPercentage = 0.0001 * bet;
+            else if (maxCount === 4) winPercentage = 0.01 * bet;
+            else if (maxCount === 5) winPercentage = 1 * bet;
+
+            let winAmount = Math.floor((rewardPool * winPercentage) / 100);
+
+            if (winAmount > 0 && winAmount <= rewardPool) {
                 playerPoints += winAmount;
                 rewardPool -= winAmount;
                 elements.message.textContent = `🎉 You won ${winAmount} points! 🎉`;
-                showEffect("firework");
             } else {
                 elements.message.textContent = "💥 BOOM! You lost!";
-                showEffect("explosion");
             }
             updateUI();
         }
@@ -236,20 +210,9 @@
             elements.rewardPool.textContent = rewardPool;
         }
 
-        function showEffect(type) {
-            let effect = document.createElement("div");
-            effect.className = type;
-            effect.style.left = `${Math.random() * window.innerWidth}px`;
-            effect.style.top = `${Math.random() * window.innerHeight}px`;
-            document.body.appendChild(effect);
-            setTimeout(() => effect.remove(), 1500);
-        }
-
         elements.spinBtn.addEventListener("click", spinReels);
         initializeStrips();
     </script>
 
 </body>
 </html>
-
-
