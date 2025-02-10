@@ -1,55 +1,57 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7 Makaralı Slot Oyunu</title>
+    <title>5 Reel Slot Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
+            text-align: center;
             background: #1a1a1a;
             color: white;
-            touch-action: manipulation;
-            overflow-x: hidden;
-            text-align: center;
+            margin: 0;
+            padding: 20px;
         }
 
         .slot-machine {
             max-width: 800px;
-            margin: 0 auto;
+            margin: auto;
             padding: 20px;
-            background: #2a2a2a;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: #222;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
+        }
+
+        .status {
+            font-size: 18px;
+            margin-bottom: 10px;
         }
 
         .reels {
             display: flex;
             justify-content: center;
-            gap: 5px;
-            margin: 20px 0;
+            gap: 10px;
         }
 
         .reel {
             width: 80px;
-            height: 120px;
+            height: 150px;
             overflow: hidden;
+            background: black;
+            border: 3px solid yellow;
+            border-radius: 10px;
             position: relative;
-            background: #000;
-            border-radius: 5px;
-            border: 2px solid #444;
         }
 
         .strip {
             position: absolute;
             width: 100%;
-            transition: transform 2s ease-out;
+            transition: transform 1s ease-out;
         }
 
         .symbol {
-            height: 120px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -57,13 +59,13 @@
         }
 
         .controls {
-            margin: 20px 0;
+            margin-top: 20px;
         }
 
         button {
-            padding: 12px 30px;
+            padding: 12px 25px;
             font-size: 18px;
-            background: #e74c3c;
+            background: red;
             color: white;
             border: none;
             border-radius: 25px;
@@ -72,44 +74,42 @@
         }
 
         button:disabled {
-            background: #7f8c8d;
+            background: gray;
             cursor: not-allowed;
         }
 
-        .status {
-            font-size: 20px;
-            margin-top: 10px;
+        input {
+            width: 80px;
+            padding: 5px;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 10px;
+            border: none;
         }
 
-        .firework {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #ff0;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: explode 1.5s ease-out;
+        .win {
+            animation: blink 0.5s infinite alternate;
         }
 
-        @keyframes explode {
-            0% { transform: scale(0); opacity: 1; }
-            100% { transform: scale(20); opacity: 0; }
-        }
-
-        .win-animation {
-            animation: win-blink 0.5s infinite alternate;
-        }
-
-        @keyframes win-blink {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+        @keyframes blink {
+            0%, 100% { color: yellow; }
+            50% { color: white; }
         }
     </style>
 </head>
 <body>
+
     <div class="slot-machine">
+        <h1>5 Reel Slot Machine</h1>
+        
         <div class="status">
-            <span>Puan: <span id="score">100</span></span> | <span>Havuz: <span id="pool">500000</span></span>
+            <p>Points: <span id="playerPoints">1000</span></p>
+            <p>Reward Pool: <span id="rewardPool">10000000</span></p>
+        </div>
+
+        <div>
+            <label for="betAmount">Bet (1-500): </label>
+            <input type="number" id="betAmount" min="1" max="500" value="1">
         </div>
 
         <div class="reels">
@@ -118,12 +118,10 @@
             <div class="reel"><div class="strip"></div></div>
             <div class="reel"><div class="strip"></div></div>
             <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
-            <div class="reel"><div class="strip"></div></div>
         </div>
 
         <div class="controls">
-            <button id="spin">SPİN (10 Puan)</button>
+            <button id="spin">SPIN</button>
         </div>
 
         <div id="message" class="status"></div>
@@ -131,104 +129,100 @@
 
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-        const SYMBOL_HEIGHT = 120;
-        let score = 100;
-        let pool = 500000;
+        const SYMBOL_HEIGHT = 50;
+        let playerPoints = 1000;
+        let rewardPool = 10000000;
         let isSpinning = false;
 
         const elements = {
-            score: document.getElementById('score'),
-            pool: document.getElementById('pool'),
-            message: document.getElementById('message'),
-            spinBtn: document.getElementById('spin'),
-            reels: document.querySelectorAll('.reel .strip')
+            playerPoints: document.getElementById("playerPoints"),
+            rewardPool: document.getElementById("rewardPool"),
+            message: document.getElementById("message"),
+            spinBtn: document.getElementById("spin"),
+            betAmount: document.getElementById("betAmount"),
+            reels: document.querySelectorAll(".reel .strip")
         };
 
         function initializeStrips() {
             elements.reels.forEach(strip => {
-                let symbolsHTML = "";
-                for(let i = 0; i < 21; i++) {
-                    symbolsHTML += `<div class="symbol">${symbols[i % symbols.length]}</div>`;
+                let html = "";
+                for (let i = 0; i < 9; i++) {
+                    html += `<div class="symbol">${symbols[i % symbols.length]}</div>`;
                 }
-                strip.innerHTML = symbolsHTML;
+                strip.innerHTML = html;
             });
         }
 
-        function updateScore(points) {
-            score = Math.max(0, score + points);
-            elements.score.textContent = score;
+        function updatePoints(amount) {
+            playerPoints = Math.max(0, playerPoints + amount);
+            elements.playerPoints.textContent = playerPoints;
         }
 
-        function updatePool(points) {
-            pool = Math.max(0, pool + points);
-            elements.pool.textContent = pool;
-        }
-
-        function createFirework(x, y) {
-            const firework = document.createElement('div');
-            firework.className = 'firework';
-            firework.style.left = `${x}px`;
-            firework.style.top = `${y}px`;
-            document.body.appendChild(firework);
-            setTimeout(() => firework.remove(), 1500);
-        }
-
-        function showWinAnimation() {
-            for(let i = 0; i < 20; i++) {
-                setTimeout(() => {
-                    createFirework(
-                        Math.random() * window.innerWidth,
-                        Math.random() * window.innerHeight
-                    );
-                }, i * 50);
-            }
+        function updateRewardPool(amount) {
+            rewardPool = Math.max(0, rewardPool + amount);
+            elements.rewardPool.textContent = rewardPool;
         }
 
         function spinReels() {
-            if(isSpinning || score < 10) return;
+            if (isSpinning) return;
+
+            let bet = parseInt(elements.betAmount.value);
+            if (isNaN(bet) || bet < 1 || bet > 500 || bet > playerPoints) {
+                elements.message.textContent = "Invalid bet!";
+                return;
+            }
 
             isSpinning = true;
             elements.spinBtn.disabled = true;
-            updateScore(-10);
-            updatePool(10);
+            updatePoints(-bet);
+            updateRewardPool(bet);
 
-            const results = [];
+            let results = [];
             elements.reels.forEach((strip, index) => {
                 const randomIndex = Math.floor(Math.random() * symbols.length);
                 const targetY = -(randomIndex * SYMBOL_HEIGHT);
                 
-                strip.style.transition = `transform ${1.5 + index * 0.2}s ease-out`;
+                strip.style.transition = `transform ${1.5 + index * 0.1}s ease-out`;
                 strip.style.transform = `translateY(${targetY}px)`;
 
                 results.push(symbols[randomIndex]);
             });
 
             setTimeout(() => {
-                checkWin(results);
+                calculateWin(results, bet);
                 isSpinning = false;
                 elements.spinBtn.disabled = false;
-            }, 2500);
+            }, 2000);
         }
 
-        function checkWin(results) {
-            const count = results.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
-            const maxCount = Math.max(...Object.values(count));
-            const winAmount = {3: 10, 4: 50, 5: 100, 6: 1000, 7: 5000}[maxCount] || 0;
+        function calculateWin(results, bet) {
+            const counts = results.reduce((acc, val) => {
+                acc[val] = (acc[val] || 0) + 1;
+                return acc;
+            }, {});
 
-            if(winAmount > 0) {
-                updateScore(winAmount);
-                updatePool(-winAmount);
-                elements.message.innerHTML = `🎉 ${maxCount} aynı sembol ile kazandınız! +${winAmount} Puan 🎉`;
-                showWinAnimation();
-                elements.message.classList.add('win-animation');
+            let maxCount = Math.max(...Object.values(counts));
+            let winPercentage = 0;
+
+            if (maxCount === 3) winPercentage = 0.0001 * bet;
+            else if (maxCount === 4) winPercentage = 0.01 * bet;
+            else if (maxCount === 5) winPercentage = 1 * bet;
+
+            let winAmount = Math.floor((rewardPool * winPercentage) / 100);
+            if (winAmount > 0) {
+                updatePoints(winAmount);
+                updateRewardPool(-winAmount);
+                elements.message.innerHTML = `🎉 You won ${winAmount} points! 🎉`;
+                elements.message.classList.add("win");
             } else {
-                elements.message.textContent = "Tekrar deneyin...";
-                elements.message.classList.remove('win-animation');
+                elements.message.textContent = "Try again!";
+                elements.message.classList.remove("win");
             }
         }
 
-        elements.spinBtn.addEventListener('click', spinReels);
+        elements.spinBtn.addEventListener("click", spinReels);
         initializeStrips();
     </script>
+
 </body>
 </html>
