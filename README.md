@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistic Slot Machine</title>
+    <title>Fixed Slot Machine</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,6 @@
             color: white;
             margin: 0;
             padding: 20px;
-            overflow: hidden;
         }
 
         .slot-machine {
@@ -120,7 +119,7 @@
 <body>
 
     <div class="slot-machine">
-        <h1>Realistic Slot Machine</h1>
+        <h1>Fixed Slot Machine</h1>
 
         <div class="status">
             <p>Points: <span id="playerPoints">1000</span></p>
@@ -192,7 +191,7 @@
                 setTimeout(() => {
                     spinAnimation(strip, () => {
                         if (index === elements.reels.length - 1) {
-                            checkWin();
+                            checkWin(bet);
                             isSpinning = false;
                             elements.spinBtn.disabled = false;
                         }
@@ -213,11 +212,11 @@
             }, 50);
         }
 
-        function checkWin() {
-            let results = Array.from(elements.reels).map(strip => strip.innerHTML.match(/>(.*?)<\/div>/g)[0].replace(/[<>\/div]/g, ""));
+        function checkWin(bet) {
+            let results = Array.from(elements.reels).map(strip => strip.children[3].textContent);
             let count = results.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
             let maxCount = Math.max(...Object.values(count));
-            let winPercentage = maxCount === 3 ? 0.0001 : maxCount === 4 ? 0.01 : maxCount === 5 ? 1 : 0;
+            let winPercentage = maxCount === 3 ? 0.0001 * bet : maxCount === 4 ? 0.01 * bet : maxCount === 5 ? 1 * bet : 0;
             let winAmount = Math.floor(rewardPool * winPercentage);
 
             if (winAmount > 0) {
@@ -252,4 +251,5 @@
 
 </body>
 </html>
+
 
