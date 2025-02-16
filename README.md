@@ -44,17 +44,8 @@
             font-size: 40px;
             background-color: black;
             color: white;
-            transition: transform 1s ease-out, box-shadow 0.5s ease-in-out;
+            transition: transform 1s ease-out;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
-        }
-        .reel.spinning {
-            animation: spinEffect 0.6s infinite;
-        }
-        @keyframes spinEffect {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
         }
         .buttons {
             margin-top: 20px;
@@ -84,13 +75,6 @@
             font-size: 18px;
             margin-top: 15px;
             font-weight: bold;
-        }
-        .glow {
-            animation: glowEffect 1s infinite alternate;
-        }
-        @keyframes glowEffect {
-            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
-            100% { box-shadow: 0 0 20px rgba(255, 215, 0, 1); }
         }
     </style>
 </head>
@@ -161,15 +145,43 @@
             document.getElementById("rewardPool").innerText = rewardPool;
 
             reels.forEach((reel, index) => {
-                reel.classList.add("spinning");
                 setTimeout(() => {
                     let randomSymbol = weightedRandom();
                     reel.innerText = randomSymbol;
-                    reel.classList.remove("spinning");
                     result.push(randomSymbol);
                     if (index === reels.length - 1) checkWin(result, bet);
                 }, index * 500);
             });
+        }
+
+        function checkWin(result, bet) {
+            let message = document.getElementById("message");
+
+            let counts = {};
+            result.forEach(symbol => {
+                counts[symbol] = (counts[symbol] || 0) + 1;
+            });
+
+            let maxMatch = Math.max(...Object.values(counts));
+            let winAmount = 0;
+
+            if (maxMatch === 3) {
+                winAmount = Math.floor((rewardPool * 0.0001 * bet) / 100);
+            } else if (maxMatch === 4) {
+                winAmount = Math.floor((rewardPool * 0.01 * bet) / 100);
+            } else if (maxMatch === 5) {
+                winAmount = Math.floor((rewardPool * 1 * bet) / 100);
+            }
+
+            if (winAmount > 0 && winAmount <= rewardPool) {
+                playerPoints += winAmount;
+                rewardPool -= winAmount;
+                document.getElementById("playerPoints").innerText = playerPoints;
+                document.getElementById("rewardPool").innerText = rewardPool;
+                message.innerText = `🎉 You won ${winAmount} points! 🎉`;
+            } else {
+                message.innerText = "Try again!";
+            }
         }
 
         document.getElementById("spin").addEventListener("click", spinReels);
