@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basit Slot Oyunu</title>
+    <title>Balanced Slot Machine</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            background-color: #222; 
-            color: white; 
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #222;
+            color: white;
         }
         .container {
             max-width: 400px;
@@ -57,7 +57,7 @@
 <body>
 
     <div class="container">
-        <h1>Basit Slot Makinesi</h1>
+        <h1>Balanced Slot Machine</h1>
 
         <div class="slot-machine">
             <div class="reel" id="reel1">🍒</div>
@@ -69,37 +69,42 @@
             <button id="spin">SPIN</button>
         </div>
 
-        <p class="message" id="message">Spin'e bas ve şansını dene!</p>
+        <p class="message" id="message">Press spin and test your luck!</p>
     </div>
 
     <script>
-        // 7 farklı sembol tanımlandı
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
+
+        function weightedRandom() {
+            return symbols[Math.floor(Math.random() * symbols.length)];
+        }
 
         function spinReels() {
             let reels = document.querySelectorAll(".reel");
             let result = [];
 
-            // Her makara için rastgele sembol seçimi
+            // Select random symbols ensuring independent probability
             reels.forEach(reel => {
-                let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                let randomSymbol = weightedRandom();
                 reel.innerText = randomSymbol;
                 result.push(randomSymbol);
             });
 
-            // Kazanç kontrolü
+            // Check for wins
             checkWin(result);
         }
 
         function checkWin(result) {
             let message = document.getElementById("message");
 
-            // Tüm semboller eşleşiyorsa
             if (result[0] === result[1] && result[1] === result[2]) {
-                message.innerText = `Tebrikler! ${result[0]} ile kazandınız! 🎉`;
+                // Probability calculations
+                let matchCount = 3;
+                let probability = (1 / (7 ** matchCount)) * 100;
+                message.innerText = `Congratulations! You won with ${result[0]}! 🎉 (Win chance: ${probability.toFixed(5)}%)`;
                 message.style.color = "yellow";
             } else {
-                message.innerText = "Şansını tekrar dene!";
+                message.innerText = "Try again!";
                 message.style.color = "white";
             }
         }
