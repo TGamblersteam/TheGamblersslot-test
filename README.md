@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5-Reel Slot Machine</title>
+    <title>tGt Slot Machine</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -68,7 +68,7 @@
             <p>Player Points: <span id="playerPoints">1000</span></p>
             <p>Reward Pool: <span id="rewardPool">10000000</span></p>
             <p>Potential Win: <span id="potentialWin">0</span></p>
-            <p>Bet Amount: <input type="number" id="betAmount" min="1" max="50" value="1"></p>
+            <p>Bet Amount: <input type="number" id="betAmount" min="1" max="50" value="1" oninput="updatePotentialWin()"></p>
         </div>
 
         <div class="slot-machine">
@@ -93,6 +93,21 @@
 
         function weightedRandom() {
             return symbols[Math.floor(Math.random() * symbols.length)];
+        }
+
+        function updatePotentialWin() {
+            let bet = parseInt(document.getElementById("betAmount").value);
+            if (isNaN(bet) || bet < 1 || bet > 50) {
+                document.getElementById("potentialWin").innerText = "Invalid bet!";
+                return;
+            }
+
+            let potentialWin3 = Math.floor((rewardPool * 0.0001 * bet) / 100);
+            let potentialWin4 = Math.floor((rewardPool * 0.01 * bet) / 100);
+            let potentialWin5 = Math.floor((rewardPool * 1 * bet) / 100);
+
+            document.getElementById("potentialWin").innerText = 
+                `3 Match: ${potentialWin3} | 4 Match: ${potentialWin4} | 5 Match (Jackpot): ${potentialWin5}`;
         }
 
         function spinReels() {
@@ -132,7 +147,6 @@
 
         function checkWin(result, bet) {
             let message = document.getElementById("message");
-            let potentialWinDisplay = document.getElementById("potentialWin");
 
             let counts = {};
             result.forEach(symbol => {
@@ -157,17 +171,18 @@
                 rewardPool -= winAmount;
                 document.getElementById("playerPoints").innerText = playerPoints;
                 document.getElementById("rewardPool").innerText = rewardPool;
-                potentialWinDisplay.innerText = winAmount;
+                document.getElementById("potentialWin").innerText = winAmount;
                 message.innerText = `🎉 Congratulations! You won ${winAmount} points! 🎉`;
                 message.style.color = "yellow";
             } else {
                 message.innerText = "Try again!";
                 message.style.color = "white";
-                potentialWinDisplay.innerText = "0";
+                updatePotentialWin(); // Update potential win after losing spin
             }
         }
 
         document.getElementById("spin").addEventListener("click", spinReels);
+        updatePotentialWin(); // Initialize potential win display on page load
     </script>
 
 </body>
