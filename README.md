@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balanced Slot Machine</title>
+    <title>Slot Makinesi (Dengeli Olasılıklar)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,22 +52,12 @@
             font-size: 18px;
             font-weight: bold;
         }
-        .status {
-            font-size: 18px;
-            margin-top: 15px;
-        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Balanced Slot Machine</h1>
-
-        <div class="status">
-            <p>Player Points: <span id="playerPoints">1000</span></p>
-            <p>Reward Pool: <span id="rewardPool">10000000</span></p>
-            <p>Potential Win: <span id="potentialWin">0</span></p>
-        </div>
+        <h1>Slot Makinesi (Dengeli Olasılıklar)</h1>
 
         <div class="slot-machine">
             <div class="reel" id="reel1">🍒</div>
@@ -79,13 +69,11 @@
             <button id="spin">SPIN</button>
         </div>
 
-        <p class="message" id="message">Press spin and test your luck!</p>
+        <p class="message" id="message">Spin'e bas ve şansını dene!</p>
     </div>
 
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-        let playerPoints = 1000;
-        let rewardPool = 10000000;
 
         function weightedRandom() {
             return symbols[Math.floor(Math.random() * symbols.length)];
@@ -95,45 +83,29 @@
             let reels = document.querySelectorAll(".reel");
             let result = [];
 
-            // Select random symbols ensuring independent probability
+            // Rastgele sembolleri belirlenen olasılıklara göre seç
             reels.forEach(reel => {
                 let randomSymbol = weightedRandom();
                 reel.innerText = randomSymbol;
                 result.push(randomSymbol);
             });
 
-            // Check for wins
+            // Kazanç kontrolü
             checkWin(result);
         }
 
         function checkWin(result) {
             let message = document.getElementById("message");
-            let potentialWinDisplay = document.getElementById("potentialWin");
 
             if (result[0] === result[1] && result[1] === result[2]) {
+                // Olasılık hesaplamalarına göre belirlenmiş ödüller
                 let matchCount = 3;
                 let probability = (1 / (7 ** matchCount)) * 100;
-
-                // Calculate dynamic win based on reward pool
-                let winPercentage = matchCount === 3 ? 0.0001 : matchCount === 4 ? 0.01 : 1;
-                let winAmount = Math.floor((rewardPool * winPercentage) / 100);
-
-                if (winAmount > 0 && winAmount <= rewardPool) {
-                    playerPoints += winAmount;
-                    rewardPool -= winAmount;
-                    document.getElementById("playerPoints").innerText = playerPoints;
-                    document.getElementById("rewardPool").innerText = rewardPool;
-                    potentialWinDisplay.innerText = winAmount;
-                } else {
-                    potentialWinDisplay.innerText = "0";
-                }
-
-                message.innerText = `Congratulations! You won with ${result[0]}! 🎉 (Win chance: ${probability.toFixed(5)}%)`;
+                message.innerText = `Tebrikler! ${result[0]} ile kazandınız! 🎉 (%${probability.toFixed(5)} şans)`;
                 message.style.color = "yellow";
             } else {
-                message.innerText = "Try again!";
+                message.innerText = "Şansını tekrar dene!";
                 message.style.color = "white";
-                potentialWinDisplay.innerText = "0";
             }
         }
 
