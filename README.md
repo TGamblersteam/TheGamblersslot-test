@@ -8,61 +8,96 @@
         body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
-            background-color: #222; 
-            color: white; 
+            background: linear-gradient(to bottom, #FFD700, #FFA500); 
+            color: black; 
         }
         .container {
-            max-width: 500px;
+            max-width: 600px;
             margin: auto;
             padding: 20px;
+            background: #333;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            color: white;
+        }
+        h1 {
+            color: #FFD700;
+            text-shadow: 2px 2px 10px rgba(255, 255, 0, 0.8);
         }
         .slot-machine {
             display: flex;
             justify-content: center;
             margin: 20px 0;
+            background: #222;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
         }
         .reel {
-            width: 60px;
-            height: 60px;
-            border: 2px solid yellow;
+            width: 80px;
+            height: 80px;
+            border: 3px solid gold;
             margin: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 40px;
             background-color: black;
-            transition: transform 1s ease-out;
+            color: white;
+            transition: transform 1s ease-out, box-shadow 0.5s ease-in-out;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+        }
+        .reel.spinning {
+            animation: spinEffect 0.6s infinite;
+        }
+        @keyframes spinEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
         .buttons {
             margin-top: 20px;
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 30px;
+            font-size: 18px;
             margin: 5px;
             cursor: pointer;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-weight: bold;
         }
         #spin {
-            background-color: red;
-            color: white;
+            background: gold;
+            color: black;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
         }
         .message {
             margin-top: 15px;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 8px gold;
         }
         .status {
             font-size: 18px;
             margin-top: 15px;
+            font-weight: bold;
+        }
+        .glow {
+            animation: glowEffect 1s infinite alternate;
+        }
+        @keyframes glowEffect {
+            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(255, 215, 0, 1); }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>5-Reel Slot Machine</h1>
+        <h1>🎰 tGt Slot 🎰</h1>
 
         <div class="status">
             <p>Player Points: <span id="playerPoints">1000</span></p>
@@ -107,7 +142,7 @@
             let potentialWin5 = Math.floor((rewardPool * 1 * bet) / 100);
 
             document.getElementById("potentialWin").innerText = 
-                `3 Match: ${potentialWin3} | 4 Match: ${potentialWin4} | 5 Match (Jackpot): ${potentialWin5}`;
+                `3 Match: ${potentialWin3} | 4 Match: ${potentialWin4} | 5 Match: ${potentialWin5}`;
         }
 
         function spinReels() {
@@ -120,69 +155,25 @@
                 return;
             }
 
-            // Deduct bet from player and add to reward pool
             playerPoints -= bet;
             rewardPool += bet;
             document.getElementById("playerPoints").innerText = playerPoints;
             document.getElementById("rewardPool").innerText = rewardPool;
 
-            // Realistic reel spin effect with staggered stopping
             reels.forEach((reel, index) => {
+                reel.classList.add("spinning");
                 setTimeout(() => {
                     let randomSymbol = weightedRandom();
-                    reel.style.transform = "rotateX(360deg)";
-                    setTimeout(() => {
-                        reel.innerText = randomSymbol;
-                        reel.style.transform = "rotateX(0deg)";
-                        result.push(randomSymbol);
-
-                        // Check win only after the last reel stops
-                        if (index === reels.length - 1) {
-                            checkWin(result, bet);
-                        }
-                    }, 500);
-                }, index * 400);
+                    reel.innerText = randomSymbol;
+                    reel.classList.remove("spinning");
+                    result.push(randomSymbol);
+                    if (index === reels.length - 1) checkWin(result, bet);
+                }, index * 500);
             });
-        }
-
-        function checkWin(result, bet) {
-            let message = document.getElementById("message");
-
-            let counts = {};
-            result.forEach(symbol => {
-                counts[symbol] = (counts[symbol] || 0) + 1;
-            });
-
-            let maxMatch = Math.max(...Object.values(counts));
-            let winPercentage = 0;
-
-            if (maxMatch === 3) {
-                winPercentage = 0.0001 * bet;
-            } else if (maxMatch === 4) {
-                winPercentage = 0.01 * bet;
-            } else if (maxMatch === 5) {
-                winPercentage = 1 * bet;
-            }
-
-            let winAmount = Math.floor((rewardPool * winPercentage) / 100);
-
-            if (winAmount > 0 && winAmount <= rewardPool) {
-                playerPoints += winAmount;
-                rewardPool -= winAmount;
-                document.getElementById("playerPoints").innerText = playerPoints;
-                document.getElementById("rewardPool").innerText = rewardPool;
-                document.getElementById("potentialWin").innerText = winAmount;
-                message.innerText = `🎉 Congratulations! You won ${winAmount} points! 🎉`;
-                message.style.color = "yellow";
-            } else {
-                message.innerText = "Try again!";
-                message.style.color = "white";
-                updatePotentialWin(); // Update potential win after losing spin
-            }
         }
 
         document.getElementById("spin").addEventListener("click", spinReels);
-        updatePotentialWin(); // Initialize potential win display on page load
+        updatePotentialWin();
     </script>
 
 </body>
