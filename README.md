@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5-Reel Slot Machine</title>
+    <title>Simple Slot Game</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -12,7 +12,7 @@
             color: white; 
         }
         .container {
-            max-width: 500px;
+            max-width: 400px;
             margin: auto;
             padding: 20px;
         }
@@ -52,29 +52,17 @@
             font-size: 18px;
             font-weight: bold;
         }
-        .status {
-            font-size: 18px;
-            margin-top: 15px;
-        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>5-Reel Slot Machine</h1>
-
-        <div class="status">
-            <p>Player Points: <span id="playerPoints">1000</span></p>
-            <p>Reward Pool: <span id="rewardPool">10000000</span></p>
-            <p>Potential Win: <span id="potentialWin">0</span></p>
-        </div>
+        <h1>Simple Slot Machine</h1>
 
         <div class="slot-machine">
             <div class="reel" id="reel1">🍒</div>
             <div class="reel" id="reel2">🍋</div>
             <div class="reel" id="reel3">🍊</div>
-            <div class="reel" id="reel4">🍉</div>
-            <div class="reel" id="reel5">🍎</div>
         </div>
 
         <div class="buttons">
@@ -86,63 +74,31 @@
 
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-        let playerPoints = 1000;
-        let rewardPool = 10000000;
-
-        function weightedRandom() {
-            return symbols[Math.floor(Math.random() * symbols.length)];
-        }
 
         function spinReels() {
             let reels = document.querySelectorAll(".reel");
             let result = [];
 
-            // Random symbol selection for each reel
+            // Select random symbols and display them
             reels.forEach(reel => {
-                let randomSymbol = weightedRandom();
+                let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
                 reel.innerText = randomSymbol;
                 result.push(randomSymbol);
             });
 
-            // Check win condition
+            // Check for win condition
             checkWin(result);
         }
 
         function checkWin(result) {
             let message = document.getElementById("message");
-            let potentialWinDisplay = document.getElementById("potentialWin");
 
-            // Count occurrences of each symbol
-            let counts = {};
-            result.forEach(symbol => {
-                counts[symbol] = (counts[symbol] || 0) + 1;
-            });
-
-            let maxMatch = Math.max(...Object.values(counts));
-            let winPercentage = 0;
-
-            if (maxMatch === 3) {
-                winPercentage = 0.0001; // 3-match probability
-            } else if (maxMatch === 4) {
-                winPercentage = 0.01; // 4-match probability
-            } else if (maxMatch === 5) {
-                winPercentage = 1; // 5-match (Jackpot) probability
-            }
-
-            let winAmount = Math.floor((rewardPool * winPercentage) / 100);
-
-            if (winAmount > 0 && winAmount <= rewardPool) {
-                playerPoints += winAmount;
-                rewardPool -= winAmount;
-                document.getElementById("playerPoints").innerText = playerPoints;
-                document.getElementById("rewardPool").innerText = rewardPool;
-                potentialWinDisplay.innerText = winAmount;
-                message.innerText = `🎉 Congratulations! You won ${winAmount} points! 🎉`;
+            if (result[0] === result[1] && result[1] === result[2]) {
+                message.innerText = `Congratulations! You won with ${result[0]}! 🎉`;
                 message.style.color = "yellow";
             } else {
-                message.innerText = "Try again!";
+                message.innerText = "Try your luck again!";
                 message.style.color = "white";
-                potentialWinDisplay.innerText = "0";
             }
         }
 
