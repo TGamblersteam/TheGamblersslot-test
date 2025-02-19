@@ -112,7 +112,7 @@
     }
 
     document.getElementById("spin").addEventListener("click", () => {
-        alert("Spin functionality will be implemented soon!");
+        spinReels();
     });
 </script>
 
