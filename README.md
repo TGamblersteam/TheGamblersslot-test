@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tGt Slot Simulator</title>
+    <title>TheGambler DAppSlot</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -24,10 +23,28 @@
             color: #FFD700;
             text-shadow: 2px 2px 10px rgba(255, 255, 0, 0.8);
         }
-        .status {
-            font-size: 18px;
-            margin-top: 15px;
-            font-weight: bold;
+        .slot-machine {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            background: #222;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .reel {
+            width: 80px;
+            height: 80px;
+            border: 3px solid gold;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            background-color: black;
+            color: white;
+            transition: transform 1s ease-out;
+            border-radius: 10px;
         }
         .buttons {
             margin-top: 20px;
@@ -40,80 +57,99 @@
             border: none;
             border-radius: 10px;
             font-weight: bold;
+        }
+        #spin {
             background: gold;
             color: black;
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
         }
+        .message {
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 8px gold;
+        }
+        .status {
+            font-size: 18px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>🎰 tGt Slot Simulator 🎰</h1>
+        <h1>🎰 TheGambler DAppSlot 🎰</h1><p>tGt Balance: <span id="tGtBalance">1000</span></p>
+    <p>Reward Pool: <span id="rewardPool">10000000</span></p>
+    <p>Potential Win: <span id="potentialWin">0</span></p>
+    <p>Bet Amount: <input type="number" id="betAmount" min="1" max="100" value="1" oninput="updatePotentialWin()"></p>
 
-        <div class="status">
-            <p>Simulated Spins: <span id="spinCount">0</span></p>
-            <p>Total Bets: <span id="totalBets">0</span></p>
-            <p>Total Winnings: <span id="totalWinnings">0</span></p>
-            <p>3-Match Wins: <span id="win3">0</span></p>
-            <p>4-Match Wins: <span id="win4">0</span></p>
-            <p>5-Match Wins (Jackpot): <span id="win5">0</span></p>
-        </div>
-
-        <div class="buttons">
-            <button onclick="simulateSpins(10000)">Simulate 10,000 Spins</button>
-        </div>
+    <div class="slot-machine">
+        <div class="reel" id="reel1">🍒</div>
+        <div class="reel" id="reel2">🍋</div>
+        <div class="reel" id="reel3">🍊</div>
+        <div class="reel" id="reel4">🍉</div>
+        <div class="reel" id="reel5">🍎</div>
     </div>
 
-    <script>
-        const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
-        let spinCount = 0;
-        let totalBets = 0;
-        let totalWinnings = 0;
-        let winCounts = { 3: 0, 4: 0, 5: 0 };
+    <div class="buttons">
+        <button id="spin">SPIN</button>
+    </div>
 
-        function simulateSpins(numSpins) {
-            for (let i = 0; i < numSpins; i++) {
-                let bet = Math.floor(Math.random() * 50) + 1; // Random bet (1x - 50x)
-                totalBets += bet;
-                
-                let result = [];
-                for (let j = 0; j < 5; j++) {
-                    result.push(symbols[Math.floor(Math.random() * symbols.length)]);
-                }
+    <p class="message" id="message">Press spin and test your luck!</p>
+</div>
 
-                let counts = {};
-                result.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
-                let maxMatch = Math.max(...Object.values(counts));
+<script>
+    function updatePotentialWin() {
+let bet = parseInt(document.getElementById("betAmount").value);
+let rewardPool = parseInt(document.getElementById("rewardPool").innerText);
 
-                let winAmount = 0;
-                if (maxMatch === 3) {
-                    winAmount = Math.floor((10000000 * 0.0001 * bet) / 100);
-                    winCounts[3]++;
-                } else if (maxMatch === 4) {
-                    winAmount = Math.floor((10000000 * 0.01 * bet) / 100);
-                    winCounts[4]++;
-                } else if (maxMatch === 5) {
-                    winAmount = Math.floor((10000000 * 1 * bet) / 100);
-                    winCounts[5]++;
-                }
+if (isNaN(bet) || bet < 1 || bet > 100) {
+    document.getElementById("potentialWin").innerText = "Invalid Bet!";
+    return;
+}
 
-                totalWinnings += winAmount;
-                spinCount++;
-            }
+let potentialWin3 = (rewardPool * 0.00005 * bet) / 100;
+let potentialWin4 = (rewardPool * 0.005 * bet) / 100;
+let potentialWin5 = (rewardPool * 0.5 * bet) / 100;
 
-            updateUI();
+document.getElementById("potentialWin").innerText = `3 Match: ${potentialWin3.toFixed(2)} | 4 Match: ${potentialWin4.toFixed(2)} | 5 Match: ${potentialWin5.toFixed(2)}`;
+
+} | 4 Match: ${potentialWin4} | 5 Match: ${potentialWin5}`; }
+
+document.getElementById("spin").addEventListener("click", () => { 
+spinReels();
+
+});
+
+function spinReels() { let bet = parseInt(document.getElementById("betAmount").value); let rewardPool = parseInt(document.getElementById("rewardPool").innerText); let balance = parseInt(document.getElementById("tGtBalance").innerText);
+
+if (isNaN(bet) || bet < 1 || bet > 100 || bet > balance) {
+    document.getElementById("message").innerText = "Invalid bet amount!";
+    return;
+}
+
+balance -= bet;
+rewardPool += bet;
+document.getElementById("tGtBalance").innerText = balance;
+document.getElementById("rewardPool").innerText = rewardPool;
+
+let reels = document.querySelectorAll(".reel");
+let results = [];
+
+reels.forEach((reel, index) => {
+    setTimeout(() => {
+        let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+        reel.innerText = randomSymbol;
+        results.push(randomSymbol);
+        
+        if (index === reels.length - 1) {
+            checkWin(results, bet);
         }
+    }, index * 500);
+});
 
-        function updateUI() {
-            document.getElementById("spinCount").innerText = spinCount;
-            document.getElementById("totalBets").innerText = totalBets;
-            document.getElementById("totalWinnings").innerText = totalWinnings;
-            document.getElementById("win3").innerText = winCounts[3];
-            document.getElementById("win4").innerText = winCounts[4];
-            document.getElementById("win5").innerText = winCounts[5];
-        }
-    </script>
+} spinReels(); }); </script>
 
 </body>
 </html>
