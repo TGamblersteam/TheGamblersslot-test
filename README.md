@@ -4,11 +4,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TheGambler DAppSlot</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: linear-gradient(to bottom, #FFD700, #FFA500);
-            color: black;
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background: linear-gradient(to bottom, #FFD700, #FFA500); 
+            color: black; 
         }
         .container {
             max-width: 600px;
