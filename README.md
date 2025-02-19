@@ -101,17 +101,23 @@
 
 <script>
     function updatePotentialWin() {
-        let bet = parseInt(document.getElementById("betAmount").value);
-        let rewardPool = parseInt(document.getElementById("rewardPool").innerText);
+let bet = parseInt(document.getElementById("betAmount").value);
+let rewardPool = parseInt(document.getElementById("rewardPool").innerText);
 
-        let potentialWin3 = Math.floor((rewardPool * 0.000005 * bet) / 100);
-        let potentialWin4 = Math.floor((rewardPool * 0.0005 * bet) / 100);
-        let potentialWin5 = Math.floor((rewardPool * 0.05 * bet) / 100);
+if (isNaN(bet) || bet < 1 || bet > 100) {
+    document.getElementById("potentialWin").innerText = "Invalid Bet!";
+    return;
+}
 
-        document.getElementById("potentialWin").innerText = `3 Match: ${potentialWin3} | 4 Match: ${potentialWin4} | 5 Match: ${potentialWin5}`;
-    }
+let potentialWin3 = (rewardPool * 0.000005 * bet) / 100;
+let potentialWin4 = (rewardPool * 0.0005 * bet) / 100;
+let potentialWin5 = (rewardPool * 0.05 * bet) / 100;
 
-    document.getElementById("spin").addEventListener("click", () => {
+document.getElementById("potentialWin").innerText = `3 Match: ${potentialWin3.toFixed(2)} | 4 Match: ${potentialWin4.toFixed(2)} | 5 Match: ${potentialWin5.toFixed(2)}`;
+
+} | 4 Match: ${potentialWin4} | 5 Match: ${potentialWin5}`; }
+
+document.getElementById("spin").addEventListener("click", () => { spinReels(); });
         spinReels();
     });
 </script>
