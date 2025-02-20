@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> tGt DAppSlot Machine</title>
+    <title>TheGambler DAppSlot Machine</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -62,13 +62,13 @@
 <body>
 
     <div class="container">
-        <h1>5-Reel Slot Machine</h1>
+        <h1>TheGambler DAppSlot Machine</h1>
 
         <div class="status">
-            <p>Player Points: <span id="playerPoints">1000</span></p>
-            <p>Reward Pool: <span id="rewardPool">10000000</span></p>
+            <p>tGt: <span id="playerPoints">1000</span></p>
+            <p>tGt Pool: <span id="rewardPool">10000000</span></p>
             <p>Potential Win: <span id="potentialWin">0</span></p>
-            <p>Bet Amount: <input type="number" id="betAmount" min="1" max="50" value="1"></p>
+            <p>Bet Amount: <input type="number" id="betAmount" min="1" max="100" value="1"></p>
         </div>
 
         <div class="slot-machine">
@@ -100,7 +100,7 @@
             let result = [];
             let bet = parseInt(document.getElementById("betAmount").value);
 
-            if (isNaN(bet) || bet < 1 || bet > 50 || bet > playerPoints) {
+            if (isNaN(bet) || bet < 1 || bet > 100 || bet > playerPoints) {
                 document.getElementById("message").innerText = "Invalid bet amount!";
                 return;
             }
@@ -143,11 +143,11 @@
             let winPercentage = 0;
 
             if (maxMatch === 3) {
-                winPercentage = 0.0001 * bet;
+                winPercentage = 0.00005 * bet; // Reduced by half
             } else if (maxMatch === 4) {
-                winPercentage = 0.01 * bet;
+                winPercentage = 0.005 * bet; // Reduced by half
             } else if (maxMatch === 5) {
-                winPercentage = 1 * bet;
+                winPercentage = 0.5 * bet; // Reduced by half
             }
 
             let winAmount = Math.floor((rewardPool * winPercentage) / 100);
@@ -158,7 +158,7 @@
                 document.getElementById("playerPoints").innerText = playerPoints;
                 document.getElementById("rewardPool").innerText = rewardPool;
                 potentialWinDisplay.innerText = winAmount;
-                message.innerText = `🎉 Congratulations! You won ${winAmount} points! 🎉`;
+                message.innerText = `🎉 Congratulations! You won ${winAmount} tGt! 🎉`;
                 message.style.color = "yellow";
             } else {
                 message.innerText = "Try again!";
@@ -171,3 +171,5 @@
     </script>
 
 </body>
+</html>
+
