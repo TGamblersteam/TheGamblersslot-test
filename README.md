@@ -78,7 +78,7 @@
             <p>tGt: <span id="playerPoints">1000</span></p>
             <p>tGt Pool: <span id="rewardPool">10000000</span></p>
             <p>Potential Win: <span id="potentialWin">0</span></p>
-            <p>Bet Amount: <input type="number" id="betAmount" min="1" max="100" value="1"></p>
+            <p>Bet Amount: <input type="number" id="betAmount" min="1" max="100" value="1" oninput="calculatePotentialWin()"></p>
         </div>
 
         <div class="slot-machine">
@@ -96,24 +96,28 @@
         <p class="message" id="message">Press spin and test your luck!</p>
     </div>
 
-    <audio id="spinSound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
-    <audio id="winSound" src="https://www.soundjay.com/button/beep-08b.wav"></audio>
-    <audio id="loseSound" src="https://www.soundjay.com/button/beep-05.wav"></audio>
-
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
         let playerPoints = 1000;
         let rewardPool = 10000000;
 
-        function weightedRandom() {
-            return symbols[Math.floor(Math.random() * symbols.length)];
+        function calculatePotentialWin() {
+            let bet = parseInt(document.getElementById("betAmount").value);
+            let potentialWinDisplay = document.getElementById("potentialWin");
+            if (isNaN(bet) || bet < 1 || bet > 100) {
+                potentialWinDisplay.innerText = 0;
+                return;
+            }
+            let win3 = Math.floor(rewardPool * 0.00005 * bet);
+            let win4 = Math.floor(rewardPool * 0.005 * bet);
+            let win5 = Math.floor(rewardPool * 0.5 * bet);
+            potentialWinDisplay.innerText = `3-match: ${win3} tGt, 4-match: ${win4} tGt, 5-match: ${win5} tGt`;
         }
 
         function spinReels() {
             let reels = document.querySelectorAll(".reel");
             let result = [];
             let bet = parseInt(document.getElementById("betAmount").value);
-            document.getElementById("spinSound").play();
 
             if (isNaN(bet) || bet < 1 || bet > 100 || bet > playerPoints) {
                 document.getElementById("message").innerText = "Invalid bet amount!";
@@ -127,40 +131,30 @@
 
             reels.forEach((reel, index) => {
                 setTimeout(() => {
-                    let randomSymbol = weightedRandom();
-                    reel.style.transform = "rotateX(360deg)";
-                    setTimeout(() => {
-                        reel.innerText = randomSymbol;
-                        reel.style.transform = "rotateX(0deg)";
-                        result.push(randomSymbol);
-                        if (index === reels.length - 1) {
-                            checkWin(result, bet);
-                        }
-                    }, 500);
+                    let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel.innerText = randomSymbol;
+                    result.push(randomSymbol);
+                    if (index === reels.length - 1) {
+                        checkWin(result, bet);
+                    }
                 }, index * 400);
             });
         }
 
         function checkWin(result, bet) {
             let message = document.getElementById("message");
-            let potentialWinDisplay = document.getElementById("potentialWin");
             let counts = {};
-            result.forEach(symbol => {
-                counts[symbol] = (counts[symbol] || 0) + 1;
-            });
+            result.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
             let maxMatch = Math.max(...Object.values(counts));
-            let winAmount = maxMatch >= 3 ? bet * maxMatch : 0;
-            potentialWinDisplay.innerText = winAmount;
+            let winAmount = maxMatch === 3 ? Math.floor(rewardPool * 0.00005 * bet) : maxMatch === 4 ? Math.floor(rewardPool * 0.005 * bet) : maxMatch === 5 ? Math.floor(rewardPool * 0.5 * bet) : 0;
 
             if (winAmount > 0) {
                 playerPoints += winAmount;
                 rewardPool -= winAmount;
                 document.getElementById("playerPoints").innerText = playerPoints;
                 document.getElementById("rewardPool").innerText = rewardPool;
-                document.getElementById("winSound").play();
                 message.innerText = `🎉 Congratulations! You won ${winAmount} tGt! 🎉`;
             } else {
-                document.getElementById("loseSound").play();
                 message.innerText = "Try again!";
             }
         }
@@ -170,5 +164,3 @@
 
 </body>
 </html>
-
-
