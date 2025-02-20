@@ -8,23 +8,30 @@
         body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
-            background-color: #222; 
+            background-color: #654321; 
             color: white; 
         }
         .container {
             max-width: 500px;
             margin: auto;
             padding: 20px;
+            background: url('https://www.transparenttextures.com/patterns/wood.png');
+            border: 10px solid #8B4513;
+            border-radius: 15px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
         }
         .slot-machine {
             display: flex;
             justify-content: center;
             margin: 20px 0;
+            background: #A0522D;
+            padding: 15px;
+            border-radius: 10px;
         }
         .reel {
             width: 60px;
             height: 60px;
-            border: 2px solid yellow;
+            border: 2px solid gold;
             margin: 5px;
             display: flex;
             align-items: center;
@@ -32,6 +39,7 @@
             font-size: 30px;
             background-color: black;
             transition: transform 1s ease-out;
+            border-radius: 5px;
         }
         .buttons {
             margin-top: 20px;
@@ -43,10 +51,12 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
+            background-color: #D2691E;
+            color: white;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
         }
         #spin {
             background-color: red;
-            color: white;
         }
         .message {
             margin-top: 15px;
@@ -86,6 +96,10 @@
         <p class="message" id="message">Press spin and test your luck!</p>
     </div>
 
+    <audio id="spinSound" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+    <audio id="winSound" src="https://www.soundjay.com/button/beep-08b.wav"></audio>
+    <audio id="loseSound" src="https://www.soundjay.com/button/beep-05.wav"></audio>
+
     <script>
         const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
         let playerPoints = 1000;
@@ -99,19 +113,18 @@
             let reels = document.querySelectorAll(".reel");
             let result = [];
             let bet = parseInt(document.getElementById("betAmount").value);
+            document.getElementById("spinSound").play();
 
             if (isNaN(bet) || bet < 1 || bet > 100 || bet > playerPoints) {
                 document.getElementById("message").innerText = "Invalid bet amount!";
                 return;
             }
 
-            // Deduct bet from player and add to reward pool
             playerPoints -= bet;
             rewardPool += bet;
             document.getElementById("playerPoints").innerText = playerPoints;
             document.getElementById("rewardPool").innerText = rewardPool;
 
-            // Realistic reel spin effect with staggered stopping
             reels.forEach((reel, index) => {
                 setTimeout(() => {
                     let randomSymbol = weightedRandom();
@@ -120,8 +133,6 @@
                         reel.innerText = randomSymbol;
                         reel.style.transform = "rotateX(0deg)";
                         result.push(randomSymbol);
-
-                        // Check win only after the last reel stops
                         if (index === reels.length - 1) {
                             checkWin(result, bet);
                         }
@@ -133,37 +144,24 @@
         function checkWin(result, bet) {
             let message = document.getElementById("message");
             let potentialWinDisplay = document.getElementById("potentialWin");
-
             let counts = {};
             result.forEach(symbol => {
                 counts[symbol] = (counts[symbol] || 0) + 1;
             });
-
             let maxMatch = Math.max(...Object.values(counts));
-            let winPercentage = 0;
+            let winAmount = maxMatch >= 3 ? bet * maxMatch : 0;
+            potentialWinDisplay.innerText = winAmount;
 
-            if (maxMatch === 3) {
-                winPercentage = 0.00005 * bet; // Reduced by half
-            } else if (maxMatch === 4) {
-                winPercentage = 0.005 * bet; // Reduced by half
-            } else if (maxMatch === 5) {
-                winPercentage = 0.5 * bet; // Reduced by half
-            }
-
-            let winAmount = Math.floor((rewardPool * winPercentage) / 100);
-
-            if (winAmount > 0 && winAmount <= rewardPool) {
+            if (winAmount > 0) {
                 playerPoints += winAmount;
                 rewardPool -= winAmount;
                 document.getElementById("playerPoints").innerText = playerPoints;
                 document.getElementById("rewardPool").innerText = rewardPool;
-                potentialWinDisplay.innerText = winAmount;
+                document.getElementById("winSound").play();
                 message.innerText = `🎉 Congratulations! You won ${winAmount} tGt! 🎉`;
-                message.style.color = "yellow";
             } else {
+                document.getElementById("loseSound").play();
                 message.innerText = "Try again!";
-                message.style.color = "white";
-                potentialWinDisplay.innerText = "0";
             }
         }
 
@@ -172,4 +170,5 @@
 
 </body>
 </html>
+
 
