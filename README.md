@@ -164,9 +164,9 @@ if (isNaN(bet) || bet < 1 || bet > 100) {
     return;
 }
 
-let potentialWin3 = Math.floor(rewardPool * 0.000005 * bet);
-let potentialWin4 = Math.floor(rewardPool * 0.0005 * bet);
-let potentialWin5 = Math.floor(rewardPool * 0.05 * bet);
+let potentialWin3 = Math.floor(rewardPool * 0.00005 * bet);
+let potentialWin4 = Math.floor(rewardPool * 0.005 * bet);
+let potentialWin5 = Math.floor(rewardPool * 0.5 * bet);
 
 document.getElementById("potentialWin").innerText = `3 Match: ${potentialWin3} | 4 Match: ${potentialWin4} | 5 Match: ${potentialWin5}`;
 
@@ -207,9 +207,9 @@ if (isNaN(bet) || bet < 1 || bet > 100) {
     return;
 }
 
-let potentialWin3 = (rewardPool * 0.000005 * bet);
-let potentialWin4 = (rewardPool * 0.0005 * bet);
-let potentialWin5 = (rewardPool * 0.05 * bet);
+let potentialWin3 = (rewardPool * 0.00005 * bet);
+let potentialWin4 = (rewardPool * 0.005 * bet);
+let potentialWin5 = (rewardPool * 0.5 * bet);
 
 document.getElementById("potentialWin").innerText = `3 Match: ${potentialWin3.toFixed(2)} | 4 Match: ${potentialWin4.toFixed(2)} | 5 Match: ${potentialWin5.toFixed(2)}`;
 
