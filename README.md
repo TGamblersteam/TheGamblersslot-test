@@ -90,7 +90,7 @@
         </div>
 
         <div class="buttons">
-            <button id="spin">SPIN</button>
+            <button id="spin" onclick="spinReels()">SPIN</button>
         </div>
 
         <p class="message" id="message">Press spin and test your luck!</p>
@@ -112,6 +112,32 @@
             let win4 = Math.floor(rewardPool * 0.0001 * bet);
             let win5 = Math.floor(rewardPool * 0.001 * bet);
             potentialWinDisplay.innerText = `3-match: ${win3} tGt, 4-match: ${win4} tGt, 5-match: ${win5} tGt`;
+        }
+
+        function spinReels() {
+            let bet = parseInt(document.getElementById("betAmount").value);
+            if (isNaN(bet) || bet < 1 || bet > 100 || bet > playerPoints) {
+                document.getElementById("message").innerText = "Invalid bet amount!";
+                return;
+            }
+
+            playerPoints -= bet;
+            rewardPool += bet;
+            document.getElementById("playerPoints").innerText = playerPoints;
+            document.getElementById("rewardPool").innerText = rewardPool;
+
+            let result = [];
+            let reels = document.querySelectorAll(".reel");
+            reels.forEach((reel, index) => {
+                setTimeout(() => {
+                    let randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel.innerText = randomSymbol;
+                    result.push(randomSymbol);
+                    if (index === reels.length - 1) {
+                        checkWin(result, bet);
+                    }
+                }, index * 200);
+            });
         }
 
         function checkWin(result, bet) {
