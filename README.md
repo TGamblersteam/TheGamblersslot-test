@@ -98,7 +98,7 @@
   </div>
 
   <!-- Ses efekti için audio elementi -->
-  <audio id="spinSound" src="https://www.soundjay.com/misc/sounds/slot-machine-1.mp3"></audio>
+  <audio id="spinSound" src="mixkit-payout-award-ding-1935.wav"></audio>
 
   <script>
     const symbols = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍇", "🍌"];
